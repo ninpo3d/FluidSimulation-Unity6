@@ -1,0 +1,79 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: M_FluidDisplacement
+  m_Shader: {fileID: 4800000, guid: 68d59187313045ea9f9e5414d7a858aa, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords:
+  - _USECUSTOMCUBEMAP_ON
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _CustomCubemap:
+        m_Texture: {fileID: 8900000, guid: 561dbc525a631404fbb36f6dc0669f28, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DisplacementMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _RampMap:
+        m_Texture: {fileID: 2800000, guid: 3aff1cef29453354592c6380f2921f1c, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _ColorBlendMode: 4
+    - _ColorDebugMode: 5
+    - _DebugNormals: 0
+    - _DiffuseIntensity: 0.7
+    - _EmissionIntensity: 0
+    - _EnableOpticalAbsorption: 1
+    - _FresnelBias: -0.138
+    - _FresnelIntensity: 1.15
+    - _FresnelPower: 4
+    - _InteractiveHeightScale: 1
+    - _MaxHeight: 1.08
+    - _MaxVelocity: 1
+    - _Metallic: 0.024
+    - _MinHeight: -1.28
+    - _MinVelocity: 0
+    - _NoiseAmplitude: 0.12
+    - _NoiseOctaves: 2
+    - _NoiseScale: 0.5
+    - _NoiseSpeed: 0.8
+    - _NoiseTime: 0
+    - _NoiseType: 1
+    - _NormalMode: 2
+    - _OpticalDepthFromHeight: 0.18
+    - _OpticalDepthScale: 5
+    - _PigmentDensity: 8
+    - _ReflectionIntensity: 1.29
+    - _Roughness: 0.025
+    - _SpecularIntensity: 0.92
+    - _UseCustomCubemap: 1
+    - _Viscosity: 0.239
+    - _WarpStrength: 1
+    - _WaveColorModulation: 0.75
+    m_Colors:
+    - _EmissionColor: {r: 0.1, g: 0.02, b: 0.15, a: 1}
+    - _FluidDomainSizeOS: {r: 10, g: 10, b: 0.1, a: 0.1}
+    - _ReflectionTint: {r: 1, g: 1, b: 1, a: 1}
+    - _SpecularColor: {r: 1, g: 1, b: 1, a: 1}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1
