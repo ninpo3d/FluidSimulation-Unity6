@@ -6,7 +6,7 @@ An optimized real-time 2.5D shallow-water fluid simulation with kinetic pigment 
 
 ## 📱 Deliverable APK Download
 
-- **Direct Download (GitHub Releases / Cloud Drive):** [Download Flexus_Fluid_Demo.apk](#) *(Add your Google Drive / Release link here)*
+- **Direct Download (GitHub Releases / Cloud Drive):** [Download Flexus_Fluid_Demo.apk](https://github.com/ninpo3d/FluidSimulation-Unity6/releases/download/v1.0.0/Flexus_Fluid_Demo.apk)
 - **Target Platform:** Android (ARM64, Android 7.0+ / API 24+)
 - **Graphics API:** Vulkan / OpenGLES 3
 - **Scripting Backend:** IL2CPP
