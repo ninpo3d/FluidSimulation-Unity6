@@ -128,23 +128,14 @@ namespace Flexus.FluidSimulation
                 _interaction = GetComponent<FluidSurfaceInteraction>();
                 if (_interaction == null)
                 {
-#if UNITY_2023_1_OR_NEWER
                     _interaction = Object.FindFirstObjectByType<FluidSurfaceInteraction>();
-#else
-                    _interaction = Object.FindObjectOfType<FluidSurfaceInteraction>();
-#endif
                 }
             }
         }
 
         private void EnsureEventSystemExists()
         {
-            EventSystem existingEs = null;
-#if UNITY_2023_1_OR_NEWER
-            existingEs = Object.FindFirstObjectByType<EventSystem>();
-#else
-            existingEs = Object.FindObjectOfType<EventSystem>();
-#endif
+            EventSystem existingEs = Object.FindFirstObjectByType<EventSystem>();
             if (existingEs == null)
             {
                 GameObject esGo = new GameObject("EventSystem");
@@ -693,13 +684,8 @@ namespace Flexus.FluidSimulation
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void AutoInitialize()
         {
-#if UNITY_2023_1_OR_NEWER
             if (Object.FindFirstObjectByType<FluidMobileUI>() != null) return;
             FluidSurfaceInteraction interaction = Object.FindFirstObjectByType<FluidSurfaceInteraction>();
-#else
-            if (Object.FindObjectOfType<FluidMobileUI>() != null) return;
-            FluidSurfaceInteraction interaction = Object.FindObjectOfType<FluidSurfaceInteraction>();
-#endif
             if (interaction != null)
             {
                 interaction.gameObject.AddComponent<FluidMobileUI>();

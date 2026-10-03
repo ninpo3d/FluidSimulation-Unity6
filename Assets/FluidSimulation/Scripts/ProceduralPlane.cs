@@ -164,11 +164,11 @@ namespace Flexus.FluidSimulation
                 }
             }
 
-            mesh.vertices = vertices;
-            mesh.normals = normals;
-            mesh.tangents = tangents;
-            mesh.uv = uvs;
-            mesh.triangles = triangles;
+            mesh.SetVertices(vertices);
+            mesh.SetNormals(normals);
+            mesh.SetTangents(tangents);
+            mesh.SetUVs(0, uvs);
+            mesh.SetTriangles(triangles, 0);
             mesh.RecalculateBounds();
             ApplyDisplacementBoundsPadding(mesh, verticalBoundsPadding);
 

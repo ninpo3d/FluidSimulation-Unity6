@@ -39,60 +39,66 @@ Shader "Flexus/FluidSimulationBlit"
 
     SubShader
     {
+        Tags { "RenderType" = "Opaque" "RenderPipeline" = "UniversalPipeline" }
         Cull Off ZWrite Off ZTest Always
 
         Pass
         {
             Name "SimulationPass"
 
-            CGPROGRAM
-            #pragma vertex vert
-            #pragma fragment frag
-            #include "UnityCG.cginc"
+            HLSLPROGRAM
+            #pragma vertex Vert
+            #pragma fragment Frag
 
-            struct appdata
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+
+            struct Attributes
             {
-                float4 vertex : POSITION;
-                float2 uv     : TEXCOORD0;
+                float4 positionOS : POSITION;
+                float2 uv         : TEXCOORD0;
             };
 
-            struct v2f
+            struct Varyings
             {
-                float4 vertex : SV_POSITION;
-                float2 uv     : TEXCOORD0;
+                float4 positionCS : SV_POSITION;
+                float2 uv         : TEXCOORD0;
             };
 
-            sampler2D _MainTex;
+            TEXTURE2D(_MainTex);
+            SAMPLER(sampler_MainTex);
             float4 _MainTex_TexelSize;
-            float4 _HitData;
-            float4 _PrevHitData;
-            float4 _BrushVelocity;
-            float _BrushRadius;
-            float _BrushStrength;
-            float _RimWidthFactor;
-            float _RimHeightFactor;
-            float _BowWaveIntensity;
-            float _TrailDecay;
-            float _DeltaTime;
-            float _Viscosity;
-            float _Plasticity;
-            float _EffectiveSpring;
-            float _EffectiveDamping;
-            float4 _FluidDomainSizeOS;
 
-            // Pigment Dynamics Uniforms (Step 1 & Step 2)
-            float _PigmentVelocityMin;
-            float _PigmentVelocityMax;
-            float _PigmentInjection;
-            float _PigmentDiffusion;
-            float _PigmentDecay;
+            CBUFFER_START(UnityPerMaterial)
+                float4 _HitData;
+                float4 _PrevHitData;
+                float4 _BrushVelocity;
+                float _BrushRadius;
+                float _BrushStrength;
+                float _RimWidthFactor;
+                float _RimHeightFactor;
+                float _BowWaveIntensity;
+                float _TrailDecay;
+                float _DeltaTime;
+                float _Viscosity;
+                float _Plasticity;
+                float _EffectiveSpring;
+                float _EffectiveDamping;
+                float4 _FluidDomainSizeOS;
 
-            v2f vert (appdata v)
+                // Pigment Dynamics Uniforms
+                float _PigmentVelocityMin;
+                float _PigmentVelocityMax;
+                float _PigmentInjection;
+                float _PigmentDiffusion;
+                float _PigmentDecay;
+            CBUFFER_END
+
+            Varyings Vert(Attributes input)
             {
-                v2f o;
-                o.vertex = UnityObjectToClipPos(v.vertex);
-                o.uv = v.uv;
-                return o;
+                Varyings output;
+                output.positionCS = TransformObjectToHClip(input.positionOS.xyz);
+                output.uv = input.uv;
+                return output;
             }
 
             // Quintic smootherstep (6t^5 - 15t^4 + 10t^3).
@@ -103,14 +109,14 @@ Shader "Flexus/FluidSimulationBlit"
                 return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);
             }
 
-            fixed4 frag (v2f i) : SV_Target
+            half4 Frag(Varyings input) : SV_Target
             {
                 // State packing:
                 // R = Displacement Height
                 // G = Vertical Wave Velocity (dh/dt)
                 // B = Kinetic Pigment Concentration C
                 // A = Captured High-Water Stroke Height (h_captured)
-                half4 state = tex2D(_MainTex, i.uv);
+                half4 state = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv);
                 float height = state.r;
                 float velocity = state.g;
                 float prevC = state.b;
@@ -136,7 +142,7 @@ Shader "Flexus/FluidSimulationBlit"
                 // Continuous stroke: capsule distance to segment (prevUV -> currUV) in world meters
                 if (isInteracting)
                 {
-                    float2 pa = (i.uv - prevUV) * domainSize;
+                    float2 pa = (input.uv - prevUV) * domainSize;
                     float2 ba = (currUV - prevUV) * domainSize;
                     float segLenSq = dot(ba, ba);
 
@@ -151,10 +157,10 @@ Shader "Flexus/FluidSimulationBlit"
                         closestUV = currUV;
                     }
 
-                    float2 toClosest = (i.uv - closestUV) * domainSize;
+                    float2 toClosest = (input.uv - closestUV) * domainSize;
                     float distSq = dot(toClosest, toClosest);
 
-                    float2 toTip = (i.uv - currUV) * domainSize;
+                    float2 toTip = (input.uv - currUV) * domainSize;
                     float distTipSq = dot(toTip, toTip);
 
                     float rimWidth = max(0.12, _RimWidthFactor);
@@ -244,7 +250,7 @@ Shader "Flexus/FluidSimulationBlit"
                 // Upward displacement and velocity impulse when releasing pointer
                 if (isReleaseFrame && _Plasticity < 0.95 && _Viscosity < 0.99)
                 {
-                    float2 toCurr = (i.uv - currUV) * domainSize;
+                    float2 toCurr = (input.uv - currUV) * domainSize;
                     float releaseDistSq = dot(toCurr, toCurr);
                     float maxReleaseR = R * 1.3;
                     if (releaseDistSq < maxReleaseR * maxReleaseR)
@@ -299,10 +305,10 @@ Shader "Flexus/FluidSimulationBlit"
                 // Explicit 2D 4-neighbor cross Laplacian stencil for spatial diffusion:
                 // \nabla^2 C = cN + cS + cE + cW - 4.0 * C
                 // \nabla^2 h_captured = hN + hS + hE + hW - 4.0 * h_captured
-                float4 sN = tex2D(_MainTex, i.uv + float2(0.0, _MainTex_TexelSize.y));
-                float4 sS = tex2D(_MainTex, i.uv - float2(0.0, _MainTex_TexelSize.y));
-                float4 sE = tex2D(_MainTex, i.uv + float2(_MainTex_TexelSize.x, 0.0));
-                float4 sW = tex2D(_MainTex, i.uv - float2(_MainTex_TexelSize.x, 0.0));
+                float4 sN = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv + float2(0.0, _MainTex_TexelSize.y));
+                float4 sS = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv - float2(0.0, _MainTex_TexelSize.y));
+                float4 sE = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv + float2(_MainTex_TexelSize.x, 0.0));
+                float4 sW = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv - float2(_MainTex_TexelSize.x, 0.0));
 
                 float laplacianC = sN.b + sS.b + sE.b + sW.b - 4.0 * prevC;
                 float laplacianH = sN.a + sS.a + sE.a + sW.a - 4.0 * prevCapturedH;
@@ -338,7 +344,7 @@ Shader "Flexus/FluidSimulationBlit"
 
                 return half4(height, velocity, newC, newCapturedH);
             }
-            ENDCG
+            ENDHLSL
         }
     }
 }
