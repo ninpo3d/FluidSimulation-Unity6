@@ -1,4 +1,4 @@
-# Flexus Fluid Simulation
+# Fluid Simulation
 
 Real-time 2.5D shallow-water fluid simulation for mobile devices (Unity 6 / Universal Render Pipeline).  
 Features 2D wave equation advection, kinetic pigment excitation/dispersion, procedural surface vertex displacement, and touch interaction.
