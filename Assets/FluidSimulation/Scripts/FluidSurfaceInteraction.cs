@@ -25,11 +25,6 @@ namespace Flexus.FluidSimulation
         ColorDodge = 6
     }
 
-    /// <summary>
-    /// Coordinates surface interaction, pointer raycasting, fluid physics properties,
-    /// and material parameter updates for the water plane.
-    /// Manages an idle sleep timer to skip GPU simulation passes when ripples have dissipated.
-    /// </summary>
     [RequireComponent(typeof(MeshRenderer))]
     public class FluidSurfaceInteraction : MonoBehaviour
     {
@@ -222,9 +217,7 @@ namespace Flexus.FluidSimulation
         public float TexelDensityX => SimulationResolution.x / Mathf.Max(0.001f, _domainSize.x);
         public float TexelDensityZ => SimulationResolution.y / Mathf.Max(0.001f, _domainSize.y);
 
-        /// <summary>
-        /// Calculates simulation render target resolution preserving 1:1 square isotropic texels for any domain dimensions.
-        /// </summary>
+        // Computes simulation resolution preserving square isotropic texels
         public Vector2Int ComputeSimulationResolution(Vector2 domain)
         {
             if (!_preserveSquareTexels)
@@ -1245,9 +1238,6 @@ namespace Flexus.FluidSimulation
             ExecutePingPongBlit(stroke.HitData, stroke.PrevHitData, brushVel);
         }
 
-        /// <summary>
-        /// Executes a single GPU simulation ping-pong step using FluidSimulator.
-        /// </summary>
         private void ExecutePingPongBlit(Vector4 hitData, Vector4 prevHitData, Vector4 brushVelocityData)
         {
             if (_simulator == null || _simulationSubsteps <= 0) return;

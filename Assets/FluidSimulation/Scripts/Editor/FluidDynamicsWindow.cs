@@ -4,11 +4,6 @@ using UnityEngine;
 
 namespace Flexus.FluidSimulation.Editor
 {
-    /// <summary>
-    /// Dockable editor utility window for interactive fluid simulation control.
-    /// Exposes real-time render target previews, color ramp baking, preset management,
-    /// and physical parameter adjustments in both edit and play modes.
-    /// </summary>
     public class FluidDynamicsWindow : EditorWindow
     {
         [MenuItem("Window/Flexus/Fluid Dynamics Controller %#f", priority = 100)]

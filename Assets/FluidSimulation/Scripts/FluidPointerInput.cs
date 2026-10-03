@@ -8,9 +8,6 @@ using UnityEditor;
 
 namespace Flexus.FluidSimulation
 {
-    /// <summary>
-    /// Encapsulates interaction stroke state computed from player pointer input.
-    /// </summary>
     public struct FluidStrokeState
     {
         public Vector4 HitData;           // x=UV.x, y=UV.y, z=isInteracting(1/0), w=isReleaseFrame(1/0)
@@ -20,11 +17,7 @@ namespace Flexus.FluidSimulation
         public bool HasImpulseThisFrame;  // True if either interacting or release impulse occurred
     }
 
-    /// <summary>
-    /// Handles cursor, touch, and pointer input for surface interactions.
-    /// Projects screen-space coordinates to world rays, evaluates ray-plane intersections
-    /// against the water surface, remaps hit positions to [0, 1] UV space, and computes stroke velocity.
-    /// </summary>
+    // Handles touch, mouse, and pointer surface raycasts
     public class FluidPointerInput
     {
         private Vector2 _currentHitUV;
@@ -47,9 +40,6 @@ namespace Flexus.FluidSimulation
         public bool DebugHitSuccess => _debugHitSuccess;
         public bool IsInteracting => _isInteractingNow;
 
-        /// <summary>
-        /// Resets stroke tracking and velocity history.
-        /// </summary>
         public void Reset()
         {
             _wasInteractingLastFrame = false;
@@ -61,10 +51,7 @@ namespace Flexus.FluidSimulation
 #endif
         }
 
-        /// <summary>
-        /// Evaluates an analytical ray-plane intersection against the surface transform.
-        /// Projects local hit coordinates onto a normalized [0, 1] UV footprint over the domain bounds.
-        /// </summary>
+        // Analytical ray-plane intersection mapped to [0, 1] UV space
         public bool RaycastPlaneUV(Ray ray, Transform surfaceTransform, Vector2 domainSize, out Vector2 hitUV)
         {
             hitUV = Vector2.zero;
@@ -109,9 +96,6 @@ namespace Flexus.FluidSimulation
         }
 
 #if UNITY_EDITOR
-        /// <summary>
-        /// Handles direct mouse painting inside the Unity Scene Viewport.
-        /// </summary>
         public void HandleSceneGUI(SceneView sceneView, Transform surfaceTransform, bool isSimulationSleeping, Vector2 domainSize)
         {
             if (!Application.isPlaying) return;
@@ -215,9 +199,6 @@ namespace Flexus.FluidSimulation
         }
 #endif
 
-        /// <summary>
-        /// Reads pointer inputs across supported devices, performs raycasts, and calculates stroke data.
-        /// </summary>
         public FluidStrokeState Update(Transform surfaceTransform, Camera camera, float deltaTime, Vector2 domainSize)
         {
             _isInteractingNow = false;

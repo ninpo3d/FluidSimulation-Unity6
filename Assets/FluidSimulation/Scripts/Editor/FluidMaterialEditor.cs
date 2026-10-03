@@ -4,12 +4,6 @@ using UnityEngine;
 
 namespace Flexus.FluidSimulation.Editor
 {
-    /// <summary>
-    /// Custom Material Inspector for fluid surface materials.
-    /// Groups shader properties into categorized sections (Color Ramp, PBR Lighting,
-    /// Procedural Waves, Normal Reconstruction, Reflections, Emission) and provides one-click palette presets.
-    /// Dedicated simulation properties (Viscosity, brush, domain) are owned by FluidSurfaceInteraction.
-    /// </summary>
     public class FluidMaterialEditor : ShaderGUI
     {
         private static bool _rampFold = true;

@@ -3,14 +3,9 @@ using UnityEngine;
 
 namespace Flexus.FluidSimulation
 {
-    /// <summary>
-    /// Manages GPU double-buffered (ping-pong) render targets for fluid simulation.
-    /// Advances per-texel damped viscoelastic heightfield simulation via Graphics.Blit and binds the active heightfield to materials.
-    /// Decoupled from input processing and scene cameras.
-    /// </summary>
+    // Manages ping-pong render targets and simulation blit passes
     public class FluidSimulator : IDisposable
     {
-        // Property IDs cached into integer handles for zero string hashing overhead
         private static readonly int DisplacementMapId = Shader.PropertyToID("_DisplacementMap");
         private static readonly int HitDataId = Shader.PropertyToID("_HitData");
         private static readonly int PrevHitDataId = Shader.PropertyToID("_PrevHitData");
@@ -50,9 +45,6 @@ namespace Flexus.FluidSimulation
         public Material SimulationMaterial => _simMaterial;
         public bool IsInitialized => _simMaterial != null && _rtA != null && _rtB != null;
 
-        /// <summary>
-        /// Initializes RenderTextures and creates simulation material from the given shader with 2D resolution.
-        /// </summary>
         public void Initialize(Shader simulationShader, Vector2Int resolution, Material targetPlaneMaterial)
         {
             if (simulationShader == null)
@@ -74,9 +66,6 @@ namespace Flexus.FluidSimulation
             InitializeRenderTextures(targetPlaneMaterial);
         }
 
-        /// <summary>
-        /// Initializes RenderTextures with square resolution.
-        /// </summary>
         public void Initialize(Shader simulationShader, int resolution, Material targetPlaneMaterial)
         {
             Initialize(simulationShader, new Vector2Int(resolution, resolution), targetPlaneMaterial);
@@ -86,9 +75,7 @@ namespace Flexus.FluidSimulation
         {
             ReleaseRenderTextures();
 
-            // 16-bit float per channel (ARGBHalf): R = height displacement, G = vertical velocity, B = kinetic pigment concentration C, A = captured crest height.
-            // Enables anti-aliased soft feathering for kinetic stroke blending while mitigating quantization banding on reconstructed normals.
-            // Bilinear filtering is used for sub-texel normal reconstruction filtering in the surface shader.
+            // ARGBHalf: R=Height, G=Velocity, B=Pigment, A=Captured Crest
             RenderTextureDescriptor desc = new RenderTextureDescriptor(_resolution.x, _resolution.y, RenderTextureFormat.ARGBHalf, 0)
             {
                 sRGB = false,
@@ -120,9 +107,6 @@ namespace Flexus.FluidSimulation
             }
         }
 
-        /// <summary>
-        /// Clears both ping-pong buffers with zero height and zero velocity.
-        /// </summary>
         public void ClearCanvas()
         {
             if (_rtA != null && _rtB != null)
@@ -136,9 +120,6 @@ namespace Flexus.FluidSimulation
             }
         }
 
-        /// <summary>
-        /// Reallocates RenderTextures to the new 2D resolution.
-        /// </summary>
         public void SetResolution(Vector2Int resolution, Material targetPlaneMaterial)
         {
             int clampedX = Mathf.Clamp(resolution.x, 32, 2048);
@@ -153,17 +134,11 @@ namespace Flexus.FluidSimulation
             InitializeRenderTextures(targetPlaneMaterial);
         }
 
-        /// <summary>
-        /// Reallocates RenderTextures to the new square resolution.
-        /// </summary>
         public void SetResolution(int resolution, Material targetPlaneMaterial)
         {
             SetResolution(new Vector2Int(resolution, resolution), targetPlaneMaterial);
         }
 
-        /// <summary>
-        /// Updates static physical parameters on the simulation blit material.
-        /// </summary>
         public void SetPhysicalParameters(
             float brushRadius,
             float brushStrength,
@@ -191,9 +166,6 @@ namespace Flexus.FluidSimulation
             _simMaterial.SetFloat(EffectiveSpringId, effectiveSpring);
         }
 
-        /// <summary>
-        /// Updates kinetic pigment concentration dynamics parameters on the simulation blit material.
-        /// </summary>
         public void SetPigmentParameters(
             float velocityMin,
             float velocityMax,
@@ -210,9 +182,6 @@ namespace Flexus.FluidSimulation
             _simMaterial.SetFloat(PigmentDecayId, decay);
         }
 
-        /// <summary>
-        /// Updates the physical domain bounds vector on the simulation blit shader.
-        /// </summary>
         public void SetDomainSize(Vector2 domainSize)
         {
             if (_simMaterial == null) return;
@@ -221,11 +190,6 @@ namespace Flexus.FluidSimulation
             _simMaterial.SetVector(FluidDomainSizeOSId, new Vector4(sizeX, sizeZ, 1.0f / sizeX, 1.0f / sizeZ));
         }
 
-        /// <summary>
-        /// Executes a single GPU simulation step using a double-buffered blit.
-        /// Reads state from the source render target, evaluates the local damped oscillator,
-        /// writes to the destination render target, swaps buffers, and binds the updated displacement map.
-        /// </summary>
         public void ExecutePingPongBlit(
             Vector4 hitData,
             Vector4 prevHitData,

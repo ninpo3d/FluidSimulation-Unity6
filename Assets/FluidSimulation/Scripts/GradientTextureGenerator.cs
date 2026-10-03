@@ -1,11 +1,5 @@
 using UnityEngine;
 
-/// <summary>
-/// Utility for generating 1D gradient LUT textures (256x1 RGBA32).
-/// The resulting texture is sampled along UV.x by the fluid surface shader
-/// using a combination of Fresnel falloff and surface wave height.
-/// Supports both in-memory runtime texture creation and editor asset baking.
-/// </summary>
 public class GradientTextureGenerator : MonoBehaviour
 {
     public const string NeonRampPath = "Assets/Textures/NeonSlimeRamp.png";
@@ -23,12 +17,12 @@ public class GradientTextureGenerator : MonoBehaviour
     {
         Gradient g = new Gradient();
         GradientColorKey[] colorKeys = new GradientColorKey[6];
-        colorKeys[0] = new GradientColorKey(new Color(0.04f, 0.02f, 0.30f), 0.00f); // Deep Indigo/Navy (cavity)
-        colorKeys[1] = new GradientColorKey(new Color(0.04f, 0.32f, 0.95f), 0.20f); // Royal Blue (inner pool)
-        colorKeys[2] = new GradientColorKey(new Color(0.00f, 0.88f, 1.00f), 0.40f); // Electric Cyan (slopes)
-        colorKeys[3] = new GradientColorKey(new Color(0.96f, 0.02f, 0.78f), 0.65f); // Neon Magenta / Hot Pink (crests)
-        colorKeys[4] = new GradientColorKey(new Color(1.00f, 0.38f, 0.02f), 0.84f); // Fiery Coral / Amber (surge)
-        colorKeys[5] = new GradientColorKey(new Color(1.00f, 0.88f, 0.96f), 1.00f); // Bright Rim Highlight
+        colorKeys[0] = new GradientColorKey(new Color(0.04f, 0.02f, 0.30f), 0.00f);
+        colorKeys[1] = new GradientColorKey(new Color(0.04f, 0.32f, 0.95f), 0.20f);
+        colorKeys[2] = new GradientColorKey(new Color(0.00f, 0.88f, 1.00f), 0.40f);
+        colorKeys[3] = new GradientColorKey(new Color(0.96f, 0.02f, 0.78f), 0.65f);
+        colorKeys[4] = new GradientColorKey(new Color(1.00f, 0.38f, 0.02f), 0.84f);
+        colorKeys[5] = new GradientColorKey(new Color(1.00f, 0.88f, 0.96f), 1.00f);
 
         GradientAlphaKey[] alphaKeys = new GradientAlphaKey[2];
         alphaKeys[0] = new GradientAlphaKey(1.0f, 0.0f);
@@ -38,10 +32,7 @@ public class GradientTextureGenerator : MonoBehaviour
         return g;
     }
 
-    /// <summary>
-    /// Generates an in-memory 256x1 Texture2D LUT from the specified gradient.
-    /// Enables dynamic in-memory runtime palette switching without touching the filesystem.
-    /// </summary>
+    // Generates an in-memory 256x1 Texture2D LUT
     public static Texture2D CreateRampTexture(Gradient gradient)
     {
         const int width = 256;
@@ -67,9 +58,7 @@ public class GradientTextureGenerator : MonoBehaviour
     }
 
 #if UNITY_EDITOR
-    /// <summary>
-    /// Bakes the gradient into a PNG texture asset on disk and configures importer settings.
-    /// </summary>
+    // Bakes the gradient into a PNG texture asset
     public static void BakeRampAsset(Gradient gradient, string path = RampTexturePath)
     {
         Texture2D tex = CreateRampTexture(gradient);
@@ -94,12 +83,8 @@ public class GradientTextureGenerator : MonoBehaviour
             importer.SaveAndReimport();
         }
         UnityEditor.AssetDatabase.Refresh();
-        Debug.Log("<color=cyan>[GradientTextureGenerator]</color> Color ramp asset baked successfully at: " + path);
     }
 
-    /// <summary>
-    /// Returns the pre-baked Neon ramp texture asset, or bakes it on disk if missing.
-    /// </summary>
     public static Texture2D GetOrCreateNeonRampAsset()
     {
         string path = NeonRampPath;

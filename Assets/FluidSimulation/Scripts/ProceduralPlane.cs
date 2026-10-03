@@ -2,18 +2,12 @@ using UnityEngine;
 
 namespace Flexus.FluidSimulation
 {
-    /// <summary>
-    /// Generates a subdivided planar mesh for vertex wave displacement.
-    /// Constructs positions, normals, tangents, and UVs on a customizable regular grid.
-    /// </summary>
     [ExecuteAlways]
     [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
     public class ProceduralPlane : MonoBehaviour
     {
         [Header("Grid Resolution")]
-        [Tooltip("Automatically computes segment counts from Size and SegmentsPerMeter to guarantee isotropic square quads.")]
         [SerializeField] private bool _autoSegmentsFromDensity = true;
-        [Tooltip("Number of quads per object-space unit (meters when Transform scale is (1,1,1)).")]
         [Range(1f, 30f)]
         [SerializeField] private float _segmentsPerMeter = 10f;
         [Range(2, 250)]
@@ -22,11 +16,9 @@ namespace Flexus.FluidSimulation
         [SerializeField] private int _segmentsZ = 100;
 
         [Header("Plane Dimensions")]
-        [Tooltip("Object-space size of the surface in meters (Width X, Length Z). Requires Transform scale (1,1,1).")]
         [SerializeField] private Vector2 _size = new Vector2(10f, 10f);
 
         [Header("Displacement Culling Bounds")]
-        [Tooltip("Vertical padding (meters) added to Mesh bounds to prevent camera frustum culling when the vertex shader displaces wave crests.")]
         [SerializeField] private float _verticalBoundsPadding = 8.0f;
 
         private MeshFilter _meshFilter;
@@ -68,6 +60,7 @@ namespace Flexus.FluidSimulation
                 _segmentsX = Mathf.Clamp(Mathf.RoundToInt(_size.x * _segmentsPerMeter), 2, 250);
                 _segmentsZ = Mathf.Clamp(Mathf.RoundToInt(_size.y * _segmentsPerMeter), 2, 250);
             }
+
             if (regenerate)
             {
                 EnsureMesh();
@@ -152,12 +145,10 @@ namespace Flexus.FluidSimulation
                     int topLeft = bottomLeft + vertexCountX;
                     int topRight = topLeft + 1;
 
-                    // First triangle
                     triangles[triIndex++] = bottomLeft;
                     triangles[triIndex++] = topLeft;
                     triangles[triIndex++] = bottomRight;
 
-                    // Second triangle
                     triangles[triIndex++] = bottomRight;
                     triangles[triIndex++] = topLeft;
                     triangles[triIndex++] = topRight;
@@ -175,11 +166,7 @@ namespace Flexus.FluidSimulation
             return mesh;
         }
 
-        /// <summary>
-        /// Symmetrically expands mesh vertical bounding box along Y.
-        /// Prevents camera frustum culling from prematurely popping the renderer
-        /// when vertex shader wave displacement elevates crests above or below Y=0.
-        /// </summary>
+        // Expands bounding box along Y to prevent culling during wave displacement
         public static void ApplyDisplacementBoundsPadding(Mesh mesh, float verticalPadding)
         {
             if (mesh == null) return;

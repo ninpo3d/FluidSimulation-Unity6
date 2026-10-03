@@ -9,11 +9,6 @@ using UnityEngine.InputSystem.UI;
 
 namespace Flexus.FluidSimulation
 {
-    /// <summary>
-    /// Modern, semi-transparent top-anchored mobile HUD built with uGUI.
-    /// Fully compatible with Unity Device Simulator, Touchscreen, and Mouse input.
-    /// Provides full-width collapsible controls for Viscosity, Brush Size, and Brush Impulse.
-    /// </summary>
     [DisallowMultipleComponent]
     public class FluidMobileUI : MonoBehaviour
     {
@@ -100,10 +95,7 @@ namespace Flexus.FluidSimulation
             UpdateSafeAreaPadding();
         }
 
-        /// <summary>
-        /// Tests if a given screen point falls over the HUD panel or any active uGUI element.
-        /// Prevents fluid displacement when manipulating UI controls in Device Simulator or on phone.
-        /// </summary>
+        // Checks if pointer is over the HUD or active UI element
         public static bool IsPointerOverUI(Vector2 screenPoint)
         {
             if (_instance == null || _instance._topPanelRect == null) return false;
@@ -678,9 +670,6 @@ namespace Flexus.FluidSimulation
             return sprite;
         }
 
-        /// <summary>
-        /// Ensures a FluidMobileUI instance automatically runs in scene when playing.
-        /// </summary>
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void AutoInitialize()
         {
